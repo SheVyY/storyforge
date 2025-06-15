@@ -1,0 +1,198 @@
+name: Full Testing Suite
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  # Unit & Integration Tests
+  comprehensive-test:
+    name: Comprehensive Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run all unit tests
+        run: npm run test:run -- src/test/unit
+
+      - name: Run integration tests
+        run: npm run test:run -- src/test/integration
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          flags: comprehensive-tests
+          name: codecov-full-test
+
+  # End-to-End Tests
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install ${{ matrix.browser }}
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 30
+
+  # Docker Testing
+  docker-test:
+    name: Docker Test Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build test Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.test
+          tags: storyforge-test:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run comprehensive tests in Docker
+        run: |
+          docker run --rm storyforge-test:latest /app/run-tests.sh
+
+  # Performance Testing
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Serve application
+        run: |
+          npm run preview &
+          sleep 5
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # Bundle Analysis
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Analyze bundle size
+        run: |
+          npx vite-bundle-analyzer dist --analyze
+          echo "📦 Bundle analysis complete"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/
+          retention-days: 30
+
+  # Full Test Success
+  full-test-success:
+    name: Full Test Suite Complete
+    runs-on: ubuntu-latest
+    needs: [comprehensive-test, e2e-test, docker-test, lighthouse, bundle-analysis]
+    if: always()
+    steps:
+      - name: Check Full Test Status
+        run: |
+          echo "📊 Full Test Suite Results:"
+          echo "=========================="
+          echo "🧪 Comprehensive Tests: ${{ needs.comprehensive-test.result }}"
+          echo "🌐 E2E Tests: ${{ needs.e2e-test.result }}"
+          echo "🐳 Docker Tests: ${{ needs.docker-test.result }}"
+          echo "🚀 Lighthouse: ${{ needs.lighthouse.result }}"
+          echo "📦 Bundle Analysis: ${{ needs.bundle-analysis.result }}"
+          echo ""
+          
+          if [ "${{ needs.comprehensive-test.result }}" == "success" ] && \
+             [ "${{ needs.e2e-test.result }}" == "success" ] && \
+             [ "${{ needs.docker-test.result }}" == "success" ] && \
+             [ "${{ needs.lighthouse.result }}" == "success" ] && \
+             [ "${{ needs.bundle-analysis.result }}" == "success" ]; then
+            echo "✅ All comprehensive tests passed!"
+            exit 0
+          else
+            echo "❌ Some comprehensive tests failed"
+            exit 1
+          fi
