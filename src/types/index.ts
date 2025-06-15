@@ -80,6 +80,7 @@ export interface SceneMetadata {
   tone: string;
   themes: string[];
   estimatedReadTime: number;
+  aiGenerated?: boolean;
 }
 
 export interface ChoiceImpact {
@@ -95,7 +96,7 @@ export interface Requirement {
 }
 
 export type DifficultyLevel = 'easy' | 'normal' | 'hard' | 'expert';
-export type EntityType = 'character' | 'location' | 'item' | 'concept';
+export type EntityType = 'character' | 'location' | 'item' | 'concept' | 'system';
 export type RelationshipType = 'ally' | 'enemy' | 'neutral' | 'romantic' | 'family';
 export type InteractionType = 'story' | 'choice' | 'consequence';
 export type RequirementType = 'stat' | 'item' | 'relationship' | 'scene_visited';
