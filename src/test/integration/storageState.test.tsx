@@ -161,6 +161,7 @@ function TestWrapper() {
 describe('Storage State Integration', () => {
   beforeEach(() => {
     localStorage.clear();
+    document.body.innerHTML = '';
     // Clean up any test data from window
     (window as any).testExportData = undefined;
   });

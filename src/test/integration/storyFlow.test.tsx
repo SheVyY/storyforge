@@ -88,6 +88,7 @@ function TestWrapper() {
 describe('Story Flow Integration', () => {
   beforeEach(() => {
     localStorage.clear();
+    document.body.innerHTML = '';
   });
 
   afterEach(async () => {

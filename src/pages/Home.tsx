@@ -89,6 +89,7 @@ const Home: Component = () => {
                 {(story) => (
                   <button
                     class="story-card"
+                    data-testid={`story-${story.id}`}
                     onClick={() => startNewStory(story.id)}
                   >
                     <h2 class="story-card-title">{story.name}</h2>
