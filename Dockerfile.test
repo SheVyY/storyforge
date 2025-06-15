@@ -1,5 +1,5 @@
 # Test Docker image for StoryForge
-FROM node:20-alpine AS test-base
+FROM node:24-alpine AS test-base
 
 # Install necessary dependencies for testing
 RUN apk add --no-cache \
