@@ -1,5 +1,5 @@
 # Multi-stage Docker build for StoryForge
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -68,7 +68,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # Development stage
-FROM node:20-alpine AS development
+FROM node:24-alpine AS development
 
 WORKDIR /app
 
