@@ -2,35 +2,11 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@solidjs/testing-library';
 import { afterEach, beforeEach, vi } from 'vitest';
 // @ts-ignore - fake-indexeddb has typing issues
-import FDBFactory from 'fake-indexeddb/lib/FDBFactory';
-// @ts-ignore - fake-indexeddb has typing issues  
-import FDBKeyRange from 'fake-indexeddb/lib/FDBKeyRange';
-// @ts-ignore
-import FDBIDBRequest from 'fake-indexeddb/lib/FDBIDBRequest';
-// @ts-ignore
-import FDBIDBTransaction from 'fake-indexeddb/lib/FDBIDBTransaction';
-// @ts-ignore
-import FDBIDBDatabase from 'fake-indexeddb/lib/FDBIDBDatabase';
+import 'fake-indexeddb/auto';
 
 beforeEach(() => {
-  // Setup comprehensive IndexedDB mock
-  const indexedDB = new FDBFactory();
-  
-  // Global assignments
-  global.indexedDB = indexedDB;
-  global.IDBKeyRange = FDBKeyRange;
-  global.IDBRequest = FDBIDBRequest;
-  global.IDBTransaction = FDBIDBTransaction;
-  global.IDBDatabase = FDBIDBDatabase;
-  
-  // Window assignments for browser-like environment
-  if (typeof window !== 'undefined') {
-    window.indexedDB = indexedDB;
-    window.IDBKeyRange = FDBKeyRange;
-    window.IDBRequest = FDBIDBRequest;
-    window.IDBTransaction = FDBIDBTransaction;
-    window.IDBDatabase = FDBIDBDatabase;
-  }
+  // fake-indexeddb/auto automatically sets up global IndexedDB
+  // No manual setup needed - it handles all the global assignments
 });
 
 // Cleanup after each test
