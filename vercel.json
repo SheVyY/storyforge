@@ -42,7 +42,6 @@
       ]
     }
   ],
-  "regions": ["iad1", "sfo1"],
   "cleanUrls": true,
   "trailingSlash": false
 }
