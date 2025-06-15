@@ -1,0 +1,135 @@
+.story-renderer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.story-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 1.125rem;
+  color: #9ca3af;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.story-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  line-height: 1.7;
+}
+
+.story-title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f3f4f6;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+.story-text {
+  font-size: 1.125rem;
+  color: #e5e7eb;
+  text-align: justify;
+}
+
+.story-text p {
+  margin: 0 0 1rem 0;
+}
+
+.story-text p:last-child {
+  margin-bottom: 0;
+}
+
+.choices-container {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.choices-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f3f4f6;
+}
+
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.choice-button {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.choice-button:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-1px);
+}
+
+.choice-button:active {
+  transform: translateY(0);
+}
+
+.choice-text {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.choice-hint {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+@container (max-width: 600px) {
+  .story-renderer {
+    gap: 1.5rem;
+  }
+  
+  .story-content {
+    padding: 1.5rem;
+  }
+  
+  .story-title {
+    font-size: 1.25rem;
+  }
+  
+  .story-text {
+    font-size: 1rem;
+  }
+  
+  .choices-container {
+    padding: 1rem;
+  }
+  
+  .choice-button {
+    padding: 0.875rem 1rem;
+  }
+}

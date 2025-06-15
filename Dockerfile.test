@@ -1,0 +1,92 @@
+# Test Docker image for StoryForge
+FROM node:20-alpine AS test-base
+
+# Install necessary dependencies for testing
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    && rm -rf /var/cache/apk/*
+
+# Set environment variables for Chromium
+ENV CHROMIUM_PATH=/usr/bin/chromium-browser
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including dev dependencies
+RUN npm ci
+
+# Install Playwright browsers (override skip download)
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
+RUN npx playwright install chromium firefox
+RUN npx playwright install-deps
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Create test script
+RUN echo '#!/bin/sh' > /app/run-tests.sh && \
+    echo 'echo "Starting StoryForge Test Suite..."' >> /app/run-tests.sh && \
+    echo 'echo "=================================="' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'echo "1. Running Unit Tests..."' >> /app/run-tests.sh && \
+    echo 'npm run test:run' >> /app/run-tests.sh && \
+    echo 'UNIT_TEST_EXIT_CODE=$?' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'echo "2. Starting Preview Server..."' >> /app/run-tests.sh && \
+    echo 'npm run preview &' >> /app/run-tests.sh && \
+    echo 'PREVIEW_PID=$!' >> /app/run-tests.sh && \
+    echo 'sleep 5' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'echo "3. Running E2E Tests..."' >> /app/run-tests.sh && \
+    echo 'npm run test:e2e' >> /app/run-tests.sh && \
+    echo 'E2E_TEST_EXIT_CODE=$?' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'echo "Stopping preview server..."' >> /app/run-tests.sh && \
+    echo 'kill $PREVIEW_PID' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'echo "Test Results:"' >> /app/run-tests.sh && \
+    echo 'echo "============="' >> /app/run-tests.sh && \
+    echo 'if [ $UNIT_TEST_EXIT_CODE -eq 0 ]; then' >> /app/run-tests.sh && \
+    echo '  echo "✅ Unit Tests: PASSED"' >> /app/run-tests.sh && \
+    echo 'else' >> /app/run-tests.sh && \
+    echo '  echo "❌ Unit Tests: FAILED"' >> /app/run-tests.sh && \
+    echo 'fi' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'if [ $E2E_TEST_EXIT_CODE -eq 0 ]; then' >> /app/run-tests.sh && \
+    echo '  echo "✅ E2E Tests: PASSED"' >> /app/run-tests.sh && \
+    echo 'else' >> /app/run-tests.sh && \
+    echo '  echo "❌ E2E Tests: FAILED"' >> /app/run-tests.sh && \
+    echo 'fi' >> /app/run-tests.sh && \
+    echo '' >> /app/run-tests.sh && \
+    echo 'if [ $UNIT_TEST_EXIT_CODE -eq 0 ] && [ $E2E_TEST_EXIT_CODE -eq 0 ]; then' >> /app/run-tests.sh && \
+    echo '  echo "🎉 All tests passed!"' >> /app/run-tests.sh && \
+    echo '  exit 0' >> /app/run-tests.sh && \
+    echo 'else' >> /app/run-tests.sh && \
+    echo '  echo "💥 Some tests failed!"' >> /app/run-tests.sh && \
+    echo '  exit 1' >> /app/run-tests.sh && \
+    echo 'fi' >> /app/run-tests.sh && \
+    chmod +x /app/run-tests.sh
+
+# Expose port for preview server
+EXPOSE 4173
+
+# Default command runs all tests
+CMD ["/app/run-tests.sh"]
+
+# Alternative commands for specific test types
+# docker run storyforge-test npm run test:run  # Unit tests only
+# docker run storyforge-test npm run test:e2e  # E2E tests only (requires preview server)
+# docker run storyforge-test /app/run-tests.sh # All tests (default)

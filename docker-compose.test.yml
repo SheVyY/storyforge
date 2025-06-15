@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  storyforge-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: storyforge-test
+    volumes:
+      # Mount test results to host for CI/CD integration
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    ports:
+      - "4173:4173"
+    # Override default command for different test scenarios
+    # command: npm run test:run  # Uncomment for unit tests only
+    # command: npm run test:e2e  # Uncomment for E2E tests only
+    command: /app/run-tests.sh
+
+  # Service for running tests in watch mode during development
+  storyforge-test-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: storyforge-test-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./test-results:/app/test-results
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4173:4173"
+      - "5173:5173"  # For dev server if needed
+    command: npm run test
+    stdin_open: true
+    tty: true
+
+  # Service for running only unit tests with coverage
+  storyforge-unit-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: storyforge-unit-tests
+    volumes:
+      - ./test-results:/app/test-results
+      - ./coverage:/app/coverage
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    command: npm run test:coverage
+
+  # Service for running only E2E tests
+  storyforge-e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: storyforge-e2e-tests
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    ports:
+      - "4173:4173"
+    command: sh -c "npm run preview & sleep 5 && npm run test:e2e"
