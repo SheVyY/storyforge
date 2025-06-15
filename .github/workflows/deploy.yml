@@ -1,10 +1,8 @@
-name: Deploy to Vercel
+name: Deploy
 
 on:
-  push:
-    branches: [ main ]
   workflow_run:
-    workflows: ["CI/CD Pipeline"]
+    workflows: ["CI"]
     branches: [main]
     types: [completed]
 
@@ -16,7 +14,7 @@ jobs:
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,27 +42,27 @@ jobs:
           echo "🚀 Deployed to: $url"
 
       - name: Create deployment comment
-        if: github.event_name == 'push'
         uses: actions/github-script@v7
         with:
           script: |
             const url = '${{ steps.deploy.outputs.url }}';
+            const sha = '${{ github.event.workflow_run.head_sha }}';
             const body = `🚀 **Deployment successful!**
             
             **Live URL:** ${url}
             
             **Deployment details:**
-            - Commit: \`${context.sha.substring(0, 7)}\`
-            - Branch: \`${context.ref.replace('refs/heads/', '')}\`
+            - Commit: \`${sha.substring(0, 7)}\`
+            - Branch: main
             - Workflow: [${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             
             ---
-            *Deployed automatically by Vercel*`;
+            *Deployed automatically by Vercel after CI success*`;
             
             github.rest.repos.createCommitComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              commit_sha: context.sha,
+              commit_sha: sha,
               body: body
             });
 

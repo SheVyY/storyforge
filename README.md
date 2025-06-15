@@ -1,7 +1,7 @@
 # StoryForge
 
-[![CI/CD Pipeline](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml)
-[![Deploy to Vercel](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml)
+[![CI](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml)
+[![Deploy](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml)
 [![Vercel](https://img.shields.io/badge/vercel-deployed-success)](https://storyforge.vercel.app)
 
 Interactive narrative game that runs language models entirely in the browser for dynamic storytelling.

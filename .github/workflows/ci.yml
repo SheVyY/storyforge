@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
@@ -208,25 +208,22 @@ jobs:
         run: |
           docker run --rm storyforge-test:latest npm run test:run -- src/test/unit
 
-  # Deployment Status
-  deployment-status:
-    name: Deployment Status
+  # CI Status Check
+  ci-success:
+    name: CI Success
     runs-on: ubuntu-latest
-    needs: [build, e2e]
+    needs: [quality, test, e2e, build]
     if: always()
     steps:
-      - name: Check deployment readiness
+      - name: Check CI Status
         run: |
-          if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.e2e.result }}" == "success" ]; then
-            echo "✅ Ready for deployment"
-            echo "DEPLOYMENT_READY=true" >> $GITHUB_ENV
+          if [ "${{ needs.quality.result }}" == "success" ] && \
+             [ "${{ needs.test.result }}" == "success" ] && \
+             [ "${{ needs.e2e.result }}" == "success" ] && \
+             [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ All CI checks passed"
+            exit 0
           else
-            echo "❌ Not ready for deployment"
-            echo "DEPLOYMENT_READY=false" >> $GITHUB_ENV
+            echo "❌ CI checks failed"
+            exit 1
           fi
-
-      - name: Create deployment status
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "Deployment status: ${{ env.DEPLOYMENT_READY }}"
-          echo "This will trigger Vercel deployment on success"
