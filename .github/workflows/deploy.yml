@@ -82,14 +82,16 @@ jobs:
 
       - name: Health check
         run: |
-          # Check if deployment is responsive
-          curl -f -s -o /dev/null ${{ needs.deploy.outputs.url }} || exit 1
+          # Check if production deployment is responsive
+          echo "🔍 Checking deployment at: ${{ needs.deploy.outputs.url }}"
+          echo "🌐 Testing production domain: https://storyforge.vercel.app"
+          curl -f -s -o /dev/null https://storyforge.vercel.app || exit 1
           echo "✅ Deployment health check passed"
 
       - name: Performance check
         run: |
-          # Basic performance check
-          response_time=$(curl -o /dev/null -s -w "%{time_total}" ${{ needs.deploy.outputs.url }})
+          # Basic performance check using production domain
+          response_time=$(curl -o /dev/null -s -w "%{time_total}" https://storyforge.vercel.app)
           echo "Response time: ${response_time}s"
           if (( $(echo "$response_time > 3.0" | bc -l) )); then
             echo "⚠️ Warning: Response time > 3s"
