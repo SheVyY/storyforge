@@ -27,8 +27,7 @@ RUN npm ci
 
 # Install Playwright browsers (override skip download)
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
-RUN npx playwright install chromium firefox
-RUN npx playwright install-deps
+RUN npx playwright install chromium
 
 # Copy source code
 COPY . .

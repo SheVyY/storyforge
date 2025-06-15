@@ -7,9 +7,15 @@ import FDBFactory from 'fake-indexeddb/lib/FDBFactory';
 import FDBKeyRange from 'fake-indexeddb/lib/FDBKeyRange';
 
 beforeEach(() => {
-  // Setup IndexedDB mock
-  global.indexedDB = new FDBFactory();
+  // Setup IndexedDB mock with proper global assignment
+  const indexedDB = new FDBFactory();
+  global.indexedDB = indexedDB;
   global.IDBKeyRange = FDBKeyRange;
+  // Also assign to window for browser-like environment
+  if (typeof window !== 'undefined') {
+    window.indexedDB = indexedDB;
+    window.IDBKeyRange = FDBKeyRange;
+  }
 });
 
 // Cleanup after each test

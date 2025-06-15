@@ -56,14 +56,14 @@ jobs:
       - name: Run unit tests
         run: npm run test:run -- src/test/unit/storyEngine.test.ts src/test/unit/StoryRenderer.test.tsx src/test/unit/simpleState.test.tsx
 
-      - name: Run integration tests (excluding problematic storage tests)
-        run: npm run test:run -- src/test/integration --exclude '**/storageState.test.tsx' --exclude '**/storyFlow.test.tsx'
+      - name: Run integration tests
+        run: npm run test:run -- src/test/integration
 
       - name: Upload test coverage
         uses: codecov/codecov-action@v4
         if: always()
         with:
-          file: ./coverage/lcov.info
+          files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
 
