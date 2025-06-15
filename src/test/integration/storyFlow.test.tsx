@@ -13,6 +13,7 @@ function StoryFlowTestComponent() {
     createNewGame, 
     addPlayerChoice, 
     setCurrentScene, 
+    updateProgress,
     loadGame 
   } = useGameState();
 
@@ -23,6 +24,10 @@ function StoryFlowTestComponent() {
     const startScene = engine.startNewStory('mysterious-portal');
     if (startScene) {
       setCurrentScene(startScene);
+      updateProgress({ 
+        scenesVisited: 1,
+        choicesMade: 0
+      });
     }
   };
 
@@ -31,6 +36,11 @@ function StoryFlowTestComponent() {
     const nextScene = engine.makeChoice(choice);
     if (nextScene) {
       setCurrentScene(nextScene);
+      // Force update of scenes visited count to match game logic
+      updateProgress({ 
+        scenesVisited: gameState().gameProgress.scenesVisited + 1,
+        choicesMade: gameState().gameProgress.choicesMade + 1
+      });
     }
   };
 

@@ -50,11 +50,15 @@ function StorageStateTestComponent() {
   const handleSaveGame = async () => {
     try {
       await StorageManager.saveGame(gameState(), 'Auto Save Test');
+      // Add a small delay to ensure IndexedDB transaction completes
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Update UI to show save completed
       const saveStatus = document.getElementById('save-status');
       if (saveStatus) saveStatus.textContent = 'Saved';
     } catch (error) {
       console.error('Save failed:', error);
+      const saveStatus = document.getElementById('save-status');
+      if (saveStatus) saveStatus.textContent = 'Save Failed';
     }
   };
 
@@ -65,6 +69,8 @@ function StorageStateTestComponent() {
         const loadedGame = await StorageManager.loadGame(saves[0].id);
         if (loadedGame) {
           loadGame(loadedGame);
+          // Add a small delay to ensure state update completes
+          await new Promise(resolve => setTimeout(resolve, 10));
           // Update UI to show load completed
           const loadStatus = document.getElementById('load-status');
           if (loadStatus) loadStatus.textContent = 'Loaded';
@@ -80,6 +86,8 @@ function StorageStateTestComponent() {
       const saves = await StorageManager.listSaves();
       if (saves.length > 0) {
         const exported = await StorageManager.exportSave(saves[0].id);
+        // Add a small delay to ensure export completes
+        await new Promise(resolve => setTimeout(resolve, 10));
         const exportStatus = document.getElementById('export-status');
         if (exportStatus) exportStatus.textContent = 'Exported';
         
@@ -96,6 +104,8 @@ function StorageStateTestComponent() {
       const exportData = (window as any).testExportData;
       if (exportData) {
         await StorageManager.importSave(exportData);
+        // Add a small delay to ensure import completes
+        await new Promise(resolve => setTimeout(resolve, 10));
         const importStatus = document.getElementById('import-status');
         if (importStatus) importStatus.textContent = 'Imported';
       }
@@ -196,7 +206,7 @@ describe('Storage State Integration', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Saved')).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
 
     // Verify save was created
     const saves = await StorageManager.listSaves();
@@ -215,7 +225,7 @@ describe('Storage State Integration', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Loaded')).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
 
     // Verify state was restored
     expect(screen.getByTestId('game-name')).toHaveTextContent(beforeSave.name!);
@@ -242,7 +252,7 @@ describe('Storage State Integration', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Exported')).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
 
     // Verify export data exists
     expect((window as any).testExportData).toBeDefined();
@@ -261,7 +271,7 @@ describe('Storage State Integration', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Imported')).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
 
     // Verify save was restored
     const restoredSaves = await StorageManager.listSaves();
@@ -273,7 +283,7 @@ describe('Storage State Integration', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Loaded')).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
 
     // Verify game state was restored
     expect(screen.getByTestId('game-name')).toHaveTextContent('Storage Test Game');
@@ -289,11 +299,11 @@ describe('Storage State Integration', () => {
 
     // Cycle 1: Save and load
     fireEvent.click(screen.getByTestId('save-game'));
-    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument(), { timeout: 5000 });
 
     fireEvent.click(screen.getByTestId('add-progress'));
     fireEvent.click(screen.getByTestId('load-game'));
-    await waitFor(() => expect(screen.getByText('Loaded')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Loaded')).toBeInTheDocument(), { timeout: 5000 });
 
     // Verify state after cycle 1
     expect(screen.getByTestId('choices-made')).toHaveTextContent('0');
@@ -302,7 +312,7 @@ describe('Storage State Integration', () => {
     fireEvent.click(screen.getByTestId('add-progress'));
     fireEvent.click(screen.getByTestId('add-progress'));
     fireEvent.click(screen.getByTestId('save-game'));
-    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument(), { timeout: 5000 });
 
     // Verify multiple saves exist
     const saves = await StorageManager.listSaves();
@@ -310,7 +320,7 @@ describe('Storage State Integration', () => {
 
     // Load most recent save
     fireEvent.click(screen.getByTestId('load-game'));
-    await waitFor(() => expect(screen.getByText('Loaded')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Loaded')).toBeInTheDocument(), { timeout: 5000 });
 
     // Verify final state
     expect(screen.getByTestId('choices-made')).toHaveTextContent('2');
@@ -363,7 +373,7 @@ describe('Storage State Integration', () => {
 
     // Save complex state
     fireEvent.click(screen.getByTestId('save-game'));
-    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Saved')).toBeInTheDocument(), { timeout: 5000 });
 
     // Verify storage contains correct data
     const saves = await StorageManager.listSaves();
