@@ -126,7 +126,7 @@ describe('Story Flow Integration', () => {
     expect(screen.getByTestId('scenes-visited')).toHaveTextContent('1');
 
     // Make first choice
-    const firstChoice = screen.getByText('Approach the portal cautiously');
+    const firstChoice = screen.getByText('Step through the portal boldly');
     fireEvent.click(firstChoice);
 
     await waitFor(() => {

@@ -232,8 +232,9 @@ test.describe('StoryForge E2E Tests', () => {
     await page.click('.choice-button:first-child');
     await page.waitForTimeout(500);
     
-    // Capture current state
+    // Capture current state for verification after reload
     const sceneTitle = await page.locator('.story-title').textContent();
+    expect(sceneTitle).toBeTruthy();
     
     // Refresh page
     await page.reload();
