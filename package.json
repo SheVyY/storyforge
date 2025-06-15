@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "lint": "tsc --noEmit",
+    "lint:fix": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
@@ -14,7 +16,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:install": "playwright install",
-    "test:all": "npm run test:run && npm run test:e2e"
+    "test:all": "npm run test:run && npm run test:e2e",
+    "ci": "npm run lint && npm run test:run && npm run test:e2e",
+    "deploy": "npm run build && vercel --prod"
   },
   "dependencies": {
     "@solidjs/router": "^0.15.3",

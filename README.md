@@ -1,7 +1,34 @@
-## Usage
+# StoryForge
+
+[![CI/CD Pipeline](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/ci.yml)
+[![Deploy to Vercel](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml/badge.svg)](https://github.com/SheVyY/storyforge/actions/workflows/deploy.yml)
+[![Vercel](https://img.shields.io/badge/vercel-deployed-success)](https://storyforge.vercel.app)
+
+Interactive narrative game that runs language models entirely in the browser for dynamic storytelling.
+
+## 🚀 Features
+
+- **Interactive Stories**: Three complete narrative scenarios with branching choices
+- **Save/Load System**: Persistent game state with IndexedDB storage  
+- **Responsive Design**: Modern UI that works on all devices
+- **Offline Ready**: PWA with service worker support
+- **Zero Dependencies**: No external APIs required
+- **Future AI Ready**: Architecture prepared for local LLM integration
+
+## 🛠️ Development
 
 ```bash
-$ npm install # or pnpm install or yarn install
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm run test:run
+
+# Build for production
+npm run build
 ```
 
 ### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
