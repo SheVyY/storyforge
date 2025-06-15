@@ -42,11 +42,6 @@
       ]
     }
   ],
-  "functions": {
-    "app/api/health.js": {
-      "maxDuration": 10
-    }
-  },
   "regions": ["iad1", "sfo1"],
   "cleanUrls": true,
   "trailingSlash": false
